@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% load home_extras %}
+
+{% block content %}
+  <h3>Homes</h3>
+  <p>
+    <a href="{% url 'homes:scrape' %}">Scrape</a>
+  </p>
+
+  {% if match and object_list.count > 10 %}
+    <h4>Match</h4>
+    <table width="100%" border="0">
+    <tbody>
+    <tr>
+      {% for home in match %}
+        <td>
+          <h4><a href="https://www.privateproperty.co.za{{ home.url }}" target="_blank">{{ home }}</a></h4>
+          <h5>{{ home.price|mil }} &mdash; {{ home.size|ha }}</h5>
+          <p><img src="{{ home.img }}"/></p>
+          <p>
+            {{ home.rating|perc }} <small>({{ home.rated }})</small>
+            {% if home.should_hide and object_list.count > 10 %}
+              <strong><a href="{% url 'homes:hide' home.pk %}">Hide</a></strong>
+            {% endif %}
+          </p>
+          <p>
+            {{ home.bedrooms|bbc }} - {{ home.bathrooms|bbc }} - {{ home.cars|bbc }}
+            <small>{{ home|ppu }}</small>
+            <a href="{% url 'homes:delete' home.pk %}">Del</a>
+          </p>
+          <button><a href="{% url 'homes:match' home.id %}">select</a></button>
+        </td>
+      {% endfor %}
+    </tr>
+    </tbody>
+    </table>
+  {% else %}
+    <h5>No matches</h5>
+    <p><a href="{% url 'homes:drop' %}">Drop some old matches</a></p>
+  {% endif %}
+
+  <br/>
+
+  <hr/>
+  <h4>{{ object_list.count }} listings</h4>
+  <table width="100%" border="0">
+  <thead>
+  <tr>
+    <th>&nbsp;</th>
+    <th>Rating</th>
+    <th>Location</th>
+    <th>Size</th>
+    <th>Price</th>
+    <th>PPU</th>
+    <th>Age</th>
+    <th>B - B - C</th>
+  </tr>
+  </thead>
+  <tbody>
+    {% for home in object_list %}
+      <tr>
+        <td><img src="{{ home.img }}" width="75px"/></td>
+        <td>{{ home.rating|perc }} <small>({{ home.rated }})</small></td>
+        <td>
+          <a href="https://www.privateproperty.co.za{{ home.url }}" target="_blank">{{ home }}</a>
+        </td>
+        <td>{{ home.size|ha }}</td>
+        <td>{{ home.price|mil }}</td>
+        <td>{{ home|ppu }}</td>
+        <td>{{ home.created_at|daysold }}</td>
+        <td>{{ home.bedrooms|bbc }} - {{ home.bathrooms|bbc }} - {{ home.cars|bbc }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+  </table>
+{% endblock %}
